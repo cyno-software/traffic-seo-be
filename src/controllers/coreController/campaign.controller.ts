@@ -1376,7 +1376,7 @@ export const createGoogleMapReviewCampaign = async (
       search,
       reviews,
     } = req.body;
-
+    // console.log(req.body);
     // Validate dates
     if (campaignTypeId !== 7) {
       res.status(statusCode.BAD_REQUEST).json({
@@ -1464,6 +1464,180 @@ export const createGoogleMapReviewCampaign = async (
     res.status(statusCode.INTERNAL_SERVER_ERROR).json({
       status: false,
       message: "Error creating Google Map Review campaign",
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * Create multiple Google Map Review campaigns in a single request
+ */
+export const createMultipleGoogleMapReviewCampaigns = async (
+  req: Request,
+  res: Response<ResponseType<any>>
+): Promise<void> => {
+  try {
+    const { campaigns } = req.body as {
+      campaigns: Array<{
+        userId: number;
+        countryId: number;
+        name: string;
+        device: string;
+        title: string;
+        startDate: string;
+        endDate: string;
+        domain: string;
+        search: string;
+        campaignTypeId: number;
+        reviews: any[];
+      }>;
+    };
+
+    if (!Array.isArray(campaigns) || campaigns.length === 0) {
+      res.status(statusCode.BAD_REQUEST).json({
+        status: false,
+        message: "campaigns must be a non-empty array",
+        error: "Invalid field",
+      });
+      return;
+    }
+
+    // Ensure all campaigns are Google Map Review type and same user
+    const firstUserId = campaigns[0].userId;
+    for (const c of campaigns) {
+      if (c.campaignTypeId !== 7) {
+        res.status(statusCode.BAD_REQUEST).json({
+          status: false,
+          message: "All items must have campaignTypeId = 7 (Google Map Review)",
+          error: "Invalid field",
+        });
+        return;
+      }
+      if (c.userId !== firstUserId) {
+        res.status(statusCode.BAD_REQUEST).json({
+          status: false,
+          message: "All campaigns must belong to the same user",
+          error: "Invalid field",
+        });
+        return;
+      }
+    }
+
+    // Validate dates and pre-compute cost per campaign
+    const computed = [] as Array<{
+      input: (typeof campaigns)[number];
+      start: Date;
+      end: Date;
+      currentDate: Date;
+      totalCost: number;
+      totalReviews: number;
+      campaignDurationInDays: number;
+    }>;
+
+    for (const item of campaigns) {
+      const { start, end, currentDate } = validateDates(
+        item.startDate,
+        item.endDate
+      );
+      if (!start || !end) {
+        res.status(statusCode.BAD_REQUEST).json({
+          status: false,
+          message: "Invalid date format for startDate or endDate",
+          error: "Invalid field",
+        });
+        return;
+      }
+      if (start >= end) {
+        res.status(statusCode.BAD_REQUEST).json({
+          status: false,
+          message: "startDate must be before endDate",
+          error: "Invalid date range",
+        });
+        return;
+      }
+
+      const { totalCost, totalReviews, campaignDurationInDays } =
+        await calculateGoogleMapReviewCampaignCosts(item.reviews, start, end);
+
+      computed.push({
+        input: item,
+        start,
+        end,
+        currentDate,
+        totalCost,
+        totalReviews,
+        campaignDurationInDays,
+      });
+    }
+
+    // Validate wallet once for total combined cost
+    const combinedCost = computed.reduce((sum, c) => sum + c.totalCost, 0);
+    const isValidWallet = await compareWalletAmount(firstUserId, combinedCost);
+    if (!isValidWallet) {
+      res.status(statusCode.BAD_REQUEST).json({
+        status: false,
+        message: "Insufficient balance for all campaigns",
+        error: "Invalid wallet",
+      });
+      return;
+    }
+
+    // Create each campaign in its own transaction block (they are independent)
+    const createdResults = [] as Array<{
+      campaign: any;
+      totalReviews: number;
+      totalCost: number;
+    }>;
+
+    for (const c of computed) {
+      const campaign = await createCampaignWithTransaction({
+        userId: c.input.userId,
+        countryId: c.input.countryId,
+        name: c.input.name,
+        device: c.input.device,
+        title: c.input.title,
+        start: c.start,
+        end: c.end,
+        domain: c.input.domain,
+        search: c.input.search,
+        campaignTypeId: c.input.campaignTypeId,
+        reviews: c.input.reviews,
+        currentDate: c.currentDate,
+        totalCost: c.totalCost,
+        campaignDurationInDays: c.campaignDurationInDays,
+      });
+
+      const campaignWithAssociations = await Campaign.findByPk(campaign.id, {
+        include: [{ model: GoogleMapReview, as: "googleMapReviews" }],
+      });
+
+      if (campaignWithAssociations) {
+        await sendCampaignNotifications(
+          campaignWithAssociations,
+          c.input.userId,
+          c.input.name,
+          c.totalCost
+        );
+      }
+
+      createdResults.push({
+        campaign: campaignWithAssociations,
+        totalReviews: c.totalReviews,
+        totalCost: c.totalCost,
+      });
+    }
+
+    res.status(statusCode.CREATED).json({
+      status: true,
+      message: "Google Map Review campaigns created successfully",
+      data: createdResults.map((r) =>
+        formatCampaignResponse(r.campaign, r.totalReviews, r.totalCost)
+      ),
+    });
+  } catch (error: any) {
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+      status: false,
+      message: "Error creating Google Map Review campaigns",
       error: error.message,
     });
   }
