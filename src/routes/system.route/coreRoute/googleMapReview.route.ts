@@ -544,7 +544,17 @@ router.patch("/:id", updateGoogleMapReview);
  * @swagger
  * /google-maps-review/search-log:
  *   post:
+ *     summary: Get logs for a GoogleMapReview
+ *     description: Retrieve logs for a specific GoogleMapReview.
  *     tags: [GoogleMapReviews]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *         description: The ID of the GoogleMapReview to get logs
  *     requestBody:
  *       required: true
  *       content:
@@ -554,10 +564,13 @@ router.patch("/:id", updateGoogleMapReview);
  *             properties:
  *               googleMapsReviewId:
  *                 type: integer
- *                 description: ID of the GoogleMapReview
+ *                 description: The ID of the GoogleMapReview to get logs
  *                 example: 1
+ *             example:
+ *               googleMapsReviewId: 1
  *     responses:
  *       200:
+ *         description: GoogleMapReview logs retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -568,107 +581,43 @@ router.patch("/:id", updateGoogleMapReview);
  *                   example: true
  *                 message:
  *                   type: string
- *                   example: Logs retrieved successfully
+ *                   example: GoogleMapReview logs retrieved successfully
  *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                         example: 1
- *                       googleMapsReviewId:
- *                         type: integer
- *                         example: 1
- *                       createdAt:
+ *                   type: object
+ *                   properties:
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           device:
+ *                             type: string
+ *                             example: "iPhone 13"
+ *                           keywordId:
+ *                             type: integer
+ *                             example: 1
+ *                           timestamp:
+ *                             type: string
+ *                             example: "2025-01-01 12:00:00"
+ *                           statusId:
+ *                             type: integer
+ *                             example: 1
+ *                           statusName:
+ *                             type: string
+ *                             example: "Success"
+ *                       type: array
+ *                       items:
  *                         type: string
- *                         format: date-time
- *                         example: "2025-01-01T00:00:00"
- *                       updatedAt:
- *                         type: string
- *                         format: date-time
- *                         example: "2025-01-01T00:00:00"
- *                       status:
- *                         type: integer
- *                         example: 1
- *                       statusName:
- *                         type: string
- *     responses:
- *       200:
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Logs retrieved successfully
- *                 data:
- *                   type: array
- *                   items:
- *                     type: object
- *                     properties:
- *                       id:
- *                         type: integer
- *                       googleMapsReviewId:
- *                         type: integer
- *                         example: 1
- *                       createdAt:
- *                         type: string
- *                         format: date-time
- *                         example: "2025-01-01T00:00:00"
- *       400:
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Invalid Google Maps Review ID
- *                 error:
- *                   type: string
- *                   example: Invalid ID format
- *       401:
- *         description: Unauthorized
- *       403:
- *         description: Forbidden - User doesn't have permission
- *       404:
- *         description: GoogleMapReview not found
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Google Maps Review not found
- *                 error:
- *                   type: string
- *       500:
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: false
- *                 message:
- *                   type: string
- *                   example: Error retrieving Google Maps Review logs
- *                 error:
- *                   type: string
- *                   example: Internal server error
+ *                       example: ["https://example.com/image1.jpg"]
+ *                     status:
+ *                       type: integer
+ *                       example: 2
+ *                     cost:
+ *                       type: number
+ *                       example: 10.99
+ *                     stars:
+ *                       type: integer
+ *                       example: 4
  */
 
 router.post("/search-log", searchLogsGoogleReviewController);
