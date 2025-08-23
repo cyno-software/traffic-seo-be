@@ -38,7 +38,7 @@ export const searchLogsGoogleReview = async (googleMapsReviewId: number) => {
     const result = await baseApiPython(`google-maps-review/get-success-log`, {
       googleMapsReviewId: googleMapsReviewId,
     });
-    return result.data;
+    return result.googleMapsReviewLog;
   } catch (error) {
     return [];
   }

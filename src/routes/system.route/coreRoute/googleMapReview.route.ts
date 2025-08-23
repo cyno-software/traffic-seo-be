@@ -547,14 +547,6 @@ router.patch("/:id", updateGoogleMapReview);
  *     summary: Get logs for a GoogleMapReview
  *     description: Retrieve logs for a specific GoogleMapReview.
  *     tags: [GoogleMapReviews]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *           minimum: 1
- *         description: The ID of the GoogleMapReview to get logs
  *     requestBody:
  *       required: true
  *       content:
