@@ -6,6 +6,7 @@ import { GoogleMapReviewAttributes } from "../../interfaces/GoogleMapReview.inte
 import statusCode from "../../constants/statusCode";
 import { baseApiPython } from "../../config/botAPI.config";
 import { logger } from "../../config/logger.config";
+import { searchLogsGoogleReview } from "../../services/botService/searchLog.service";
 
 
 export const getGoogleMapReviewListRepo = async (filters: {
@@ -136,9 +137,15 @@ export const getGoogleMapReviewByCampaignIdRepo = async (
       where: { campaignId: id, isDeleted: false },
       include: [{ model: Campaign, as: 'campaigns' }]
     });
+    const googleMapReviewsWithLogs = await Promise.all(googleMapReviews.map(async (googleMapReview) => {
+      const logs = await searchLogsGoogleReview(googleMapReview.id);
+      return {
+        ...googleMapReview.get({ plain: true }),
+        logs
+      };
+    }));
 
-
-    return googleMapReviews;
+    return googleMapReviewsWithLogs;
   } catch (error: any) {
     throw new ErrorType(error.name, error.message, error.code);
   }
