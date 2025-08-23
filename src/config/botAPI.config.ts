@@ -29,7 +29,8 @@ export const baseApiPython = async (
       },
       validateStatus: (status) => status >= 200 && status < 300, // Treat 2xx as success
     });
-
+    console.log(response.data);
+    console.log(apiUrl);
     // Check if response or response.data is empty
     if (!response?.data) {
       throw new Error("Empty response from API");
