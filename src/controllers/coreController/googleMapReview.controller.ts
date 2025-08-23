@@ -366,7 +366,7 @@ export const getGoogleMapReviewsByCampaignId = async (
     const googleMapReviews = await getGoogleMapReviewByCampaignIdRepo(
       campaignId
     );
-    console.log(googleMapReviews);
+    // console.log(googleMapReviews);
     res.status(statusCode.OK).json({
       status: true,
       message: "GoogleMapReviews retrieved successfully",

@@ -139,7 +139,7 @@ export const getGoogleMapReviewByCampaignIdRepo = async (
     });
     const googleMapReviewsWithLogs = await Promise.all(googleMapReviews.map(async (googleMapReview) => {
       const logs = await searchLogsGoogleReview(googleMapReview.id);
-      console.log(logs);
+      // console.log(logs);
       return {
         ...googleMapReview.get({ plain: true }),
         logs
