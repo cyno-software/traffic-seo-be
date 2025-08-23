@@ -12,7 +12,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /googleMapsReviews/search:
+ * /google-maps-review/search:
  *   post:
  *     summary: Get a list of GoogleMapReviews with filters
  *     description: Retrieve GoogleMapReviews filtered by campaignId, distribution, and createdAt date range.
@@ -102,7 +102,7 @@ router.post("/search", authorization(["search-googleMapReviews"]), getGoogleMapR
 
 /**
  * @swagger
- * /googleMapReviews/getByCampaign:
+ * /google-maps-review/getByCampaign:
  *   post:
  *     summary: Get GoogleMapReviews by campaign ID
  *     description: Retrieve all GoogleMapReviews for a specific campaign.
@@ -175,7 +175,7 @@ router.post("/getByCampaign", authorization(["read-googleMapReview"]), getGoogle
 
 /**
  * @swagger
- * /googleMapReviews:
+ * /google-maps-review:
  *   post:
  *     summary: Create a new GoogleMapReview
  *     description: Create a new GoogleMapReview with required fields.
@@ -281,7 +281,7 @@ router.post("/", authorization(["create-googleMapReview"]), createGoogleMapRevie
 
 /**
  * @swagger
- * /googleMapReviews/{id}:
+ * /google-maps-review/{id}:
  *   get:
  *     summary: Get a GoogleMapReview by ID
  *     description: Retrieve a specific GoogleMapReview by its ID.
@@ -344,7 +344,7 @@ router.get("/:id", authorization(["read-googleMapReview"]), getGoogleMapReviewBy
 
 /**
  * @swagger
- * /googleMapReviews/{id}:
+ * /google-maps-review/{id}:
  *   patch:
  *     summary: Update a GoogleMapReview by ID
  *     description: Updates specific fields of an existing GoogleMapReview identified by its ID.
