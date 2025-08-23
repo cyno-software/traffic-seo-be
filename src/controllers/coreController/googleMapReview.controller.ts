@@ -6,6 +6,7 @@ import {
   getGoogleMapReviewByIdRepo,
   updateGoogleMapReviewRepo,
   getGoogleMapReviewByCampaignIdRepo,
+  getGoogleMapReviewImagesByIdRepo,
 } from "../../repositories/coreRepo/googleMapsReview.repository";
 import { ResponseType } from "../../types/Response.type";
 import { GoogleMapReviewAttributes } from "../../interfaces/GoogleMapReview.interface";
@@ -13,14 +14,21 @@ import { DistributionType } from "../../enums/distribution.enum";
 import { ErrorType } from "../../types/Error.type";
 import { AuthenticatedRequest } from "../../types/AuthenticateRequest.type";
 import { getCampaignByIdRepo } from "../../repositories/coreRepo/campagin.repository";
+import { searchLogsGoogleReview } from "../../services/botService/searchLog.service";
 
 // Get GoogleMapReview list with filters
 export const getGoogleMapReviewList = async (
   req: Request,
-  res: Response<ResponseType<{ googleMapReviews: GoogleMapReviewAttributes[]; total: number }>>
+  res: Response<
+    ResponseType<{
+      googleMapReviews: GoogleMapReviewAttributes[];
+      total: number;
+    }>
+  >
 ): Promise<void> => {
   try {
-    const { campaignId, distribution, start_date, end_date, limit, page } = req.body;
+    const { campaignId, distribution, start_date, end_date, limit, page } =
+      req.body;
 
     const filters: {
       campaignId?: number;
@@ -35,7 +43,10 @@ export const getGoogleMapReviewList = async (
     if (limit) filters.limit = limit;
     if (campaignId) filters.campaignId = Number(campaignId);
 
-    if (distribution && Object.values(DistributionType).includes(distribution as DistributionType)) {
+    if (
+      distribution &&
+      Object.values(DistributionType).includes(distribution as DistributionType)
+    ) {
       filters.distribution = distribution as DistributionType;
     } else if (distribution) {
       res.status(statusCode.BAD_REQUEST).json({
@@ -93,7 +104,16 @@ export const createGoogleMapReview = async (
   res: Response<ResponseType<GoogleMapReviewAttributes>>
 ): Promise<void> => {
   try {
-    const { campaignId, content, location, googleMapsUrl, imgUrls, status, cost, stars } = req.body;
+    const {
+      campaignId,
+      content,
+      location,
+      googleMapsUrl,
+      imgUrls,
+      status,
+      cost,
+      stars,
+    } = req.body;
     const user = req.data;
 
     if (!user || !user.id) {
@@ -122,7 +142,16 @@ export const createGoogleMapReview = async (
       return;
     }
 
-    if (!campaignId || !content || !location || !googleMapsUrl || !imgUrls || !status || !cost || !stars) {
+    if (
+      !campaignId ||
+      !content ||
+      !location ||
+      !googleMapsUrl ||
+      !imgUrls ||
+      !status ||
+      !cost ||
+      !stars
+    ) {
       res.status(statusCode.BAD_REQUEST).json({
         status: false,
         message: "All fields are required",
@@ -271,7 +300,10 @@ export const updateGoogleMapReview = async (
       return;
     }
 
-    const updatedGoogleMapReview = await updateGoogleMapReviewRepo(parsedId, data);
+    const updatedGoogleMapReview = await updateGoogleMapReviewRepo(
+      parsedId,
+      data
+    );
     res.status(statusCode.OK).json({
       status: true,
       message: "GoogleMapReview updated successfully",
@@ -331,7 +363,9 @@ export const getGoogleMapReviewsByCampaignId = async (
       return;
     }
 
-    const googleMapReviews = await getGoogleMapReviewByCampaignIdRepo(campaignId);
+    const googleMapReviews = await getGoogleMapReviewByCampaignIdRepo(
+      campaignId
+    );
     res.status(statusCode.OK).json({
       status: true,
       message: "GoogleMapReviews retrieved successfully",
@@ -341,6 +375,43 @@ export const getGoogleMapReviewsByCampaignId = async (
     res.status(statusCode.INTERNAL_SERVER_ERROR).json({
       status: false,
       message: "Error retrieving GoogleMapReviews by campaignId",
+      error: error.message,
+    });
+  }
+};
+
+// Get Google Maps Review Images by ID
+export const getGoogleMapReviewImagesById = async (
+  req: AuthenticatedRequest,
+  res: Response<ResponseType<any>>
+): Promise<void> => {
+  try {
+    const { id } = req.params;
+    // Get images from Python API
+    const images = await getGoogleMapReviewImagesByIdRepo(Number(id));
+
+    res.status(statusCode.OK).json(images);
+  } catch (error: any) {
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+      status: false,
+      message: "Error retrieving Google Maps Review images",
+      error: error.message,
+    });
+  }
+};
+
+export const searchLogsGoogleReviewController = async (
+  req: AuthenticatedRequest,
+  res: Response<ResponseType<any>>
+): Promise<void> => {
+  try {
+    const { googleMapsReviewId } = req.body;
+    const logs = await searchLogsGoogleReview(googleMapsReviewId);
+    res.status(statusCode.OK).json(logs);
+  } catch (error: any) {
+    res.status(statusCode.INTERNAL_SERVER_ERROR).json({
+      status: false,
+      message: "Error retrieving Google Maps Review logs",
       error: error.message,
     });
   }

@@ -137,36 +137,8 @@ export const getGoogleMapReviewByCampaignIdRepo = async (
       include: [{ model: Campaign, as: 'campaigns' }]
     });
 
-    if (googleMapReviews.length === 0) {
-      return null;
-    }
 
-    // Call Python API for each review to get images and attach them
-    const reviewsWithImages = await Promise.all(
-      googleMapReviews.map(async (googleMapReview) => {
-        try {
-          // Call the image API for this specific review ID
-          const imageData = await baseApiPython(`image/${googleMapReview.id}`, {});
-          
-          // Attach the image data to the review
-          return {
-            ...googleMapReview.toJSON(),
-            images: imageData
-          };
-        } catch (error: any) {
-          // If image API fails, return review without images
-          logger.error(
-            `Failed to get images for Google Maps review ${googleMapReview.id}: ${error.message}`
-          );
-          return {
-            ...googleMapReview.toJSON(),
-            images: null
-          };
-        }
-      })
-    );
-
-    return reviewsWithImages;
+    return googleMapReviews;
   } catch (error: any) {
     throw new ErrorType(error.name, error.message, error.code);
   }
@@ -239,6 +211,40 @@ export const getCampaignUserIdByGoogleMapReviewIdRepo = async (
     }
 
     return plain.campaigns.userId;
+  } catch (error: any) {
+    throw new ErrorType(error.name, error.message, error.code);
+  }
+};
+
+export const getGoogleMapReviewImagesByIdRepo = async (
+  id: number
+): Promise<any> => {
+  try {
+    if (!Number.isInteger(id) || id <= 0) {
+      throw new ErrorType(
+        "ValidationError",
+        "Google Maps Review ID must be a positive integer",
+        statusCode.BAD_REQUEST
+      );
+    }
+
+    // Verify the review exists
+    const googleMapReview = await GoogleMapReview.findOne({
+      where: { id, isDeleted: false }
+    });
+
+    if (!googleMapReview) {
+      throw new ErrorType(
+        "NotFoundError",
+        `Google Maps Review with id ${id} not found`,
+        statusCode.NOT_FOUND
+      );
+    }
+
+    // Call Python API to get images for this specific review ID
+    const imageData = await baseApiPython(`image/${id}`, {});
+    
+    return imageData;
   } catch (error: any) {
     throw new ErrorType(error.name, error.message, error.code);
   }

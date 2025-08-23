@@ -5,10 +5,108 @@ import {
   getGoogleMapReviewById,
   updateGoogleMapReview,
   getGoogleMapReviewsByCampaignId,
+  getGoogleMapReviewImagesById,
+  searchLogsGoogleReviewController,
 } from "../../../controllers/coreController/googleMapReview.controller";
 import { authorization } from "../../../middleware/auth";
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * /google-maps-review/{id}/images:
+ *   get:
+ *     summary: Get GoogleMapReview images by ID
+ *     description: Retrieve all images associated with a specific GoogleMapReview identified by its ID.
+ *     tags: [GoogleMapReviews]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: GoogleMapReview ID
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: GoogleMapReview images retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: GoogleMapReview images retrieved successfully
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     reviewId:
+ *                       type: integer
+ *                       description: ID of the GoogleMapReview
+ *                       example: 1
+ *                     images:
+ *                       type: object
+ *                       description: Image data returned from Python API
+ *                       example: { "imageUrls": ["https://example.com/image1.jpg"], "metadata": "..." }
+ *       400:
+ *         description: Bad request - Invalid ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid Google Maps Review ID
+ *                 error:
+ *                   type: string
+ *                   example: Invalid ID format
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - User doesn't have permission
+ *       404:
+ *         description: GoogleMapReview not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Google Maps Review not found
+ *                 error:
+ *                   type: string
+ *                   example: Resource not found
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Error retrieving Google Maps Review images
+ *                 error:
+ *                   type: string
+ *                   example: Database error
+ */
+router.get("/:id/images", getGoogleMapReviewImagesById);
+
 
 /**
  * @swagger
@@ -342,6 +440,7 @@ router.post("/", createGoogleMapReview);
  */
 router.get("/:id", getGoogleMapReviewById);
 
+
 /**
  * @swagger
  * /google-maps-review/{id}:
@@ -441,4 +540,142 @@ router.get("/:id", getGoogleMapReviewById);
  */
 router.patch("/:id", updateGoogleMapReview);
 
+/**
+ * @swagger
+ * /google-maps-review/search-log:
+ *   post:
+ *     summary: Get logs for a GoogleMapReview
+ *     description: Retrieve logs for a specific GoogleMapReview.
+ *     tags: [GoogleMapReviews]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               googleMapsReviewId:
+ *                 type: integer
+ *                 description: ID of the GoogleMapReview
+ *                 example: 1
+ *     responses:
+ *       200:
+ *         description: Logs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Logs retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                         example: 1
+ *                       googleMapsReviewId:
+ *                         type: integer
+ *                         example: 1
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-01-01T00:00:00"
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-01-01T00:00:00"
+ *                       status:
+ *                         type: integer
+ *                         example: 1
+ *                       statusName:
+ *                         type: string
+ *     responses:
+ *       200:
+ *         description: Logs retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Logs retrieved successfully
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       googleMapsReviewId:
+ *                         type: integer
+ *                         example: 1
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         example: "2025-01-01T00:00:00"
+ *       400:
+ *         description: Bad request - Invalid ID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Invalid Google Maps Review ID
+ *                 error:
+ *                   type: string
+ *                   example: Invalid ID format
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - User doesn't have permission
+ *       404:
+ *         description: GoogleMapReview not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Google Maps Review not found
+ *                 error:
+ *                   type: string
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   example: Error retrieving Google Maps Review logs
+ *                 error:
+ *                   type: string
+ *                   example: Internal server error
+ */
+
+router.post("/search-log", searchLogsGoogleReviewController);
 export default router;
