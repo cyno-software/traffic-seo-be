@@ -573,52 +573,39 @@ router.patch("/:id", updateGoogleMapReview);
  *         description: GoogleMapReview logs retrieved successfully
  *         content:
  *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: GoogleMapReview logs retrieved successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     list:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           device:
- *                             type: string
- *                             example: "iPhone 13"
- *                           keywordId:
- *                             type: integer
- *                             example: 1
- *                           timestamp:
- *                             type: string
- *                             example: "2025-01-01 12:00:00"
- *                           statusId:
- *                             type: integer
- *                             example: 1
- *                           statusName:
- *                             type: string
- *                             example: "Success"
- *                       type: array
- *                       items:
- *                         type: string
- *                       example: ["https://example.com/image1.jpg"]
- *                     status:
- *                       type: integer
- *                       example: 2
- *                     cost:
- *                       type: number
- *                       example: 10.99
- *                     stars:
- *                       type: integer
- *                       example: 4
- */
+  *             schema:
+  *               type: object
+  *               properties:
+  *                 status:
+  *                   type: boolean
+  *                   example: true
+  *                 message:
+  *                   type: string
+  *                   example: GoogleMapReview logs retrieved successfully
+  *                 data:
+  *                   type: object
+  *                   properties:
+  *                     list:
+  *                       type: array
+  *                       items:
+  *                         type: object
+  *                         properties:
+  *                           device:
+  *                             type: string
+  *                             example: "iPhone 13"
+  *                           keywordId:
+  *                             type: integer
+  *                             example: 1
+  *                           timestamp:
+  *                             type: string
+  *                             example: "2025-01-01 12:00:00"
+  *                           statusId:
+  *                             type: integer
+  *                             example: 1
+  *                           statusName:
+  *                             type: string
+  *                             example: "Success"
+  */
 
 router.post("/search-log", searchLogsGoogleReviewController);
 export default router;
