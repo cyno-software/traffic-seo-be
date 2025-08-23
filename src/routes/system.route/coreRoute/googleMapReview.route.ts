@@ -544,7 +544,6 @@ router.patch("/:id", updateGoogleMapReview);
  * @swagger
  * /google-maps-review/search-log:
  *   post:
- *     summary: Get logs for a GoogleMapReview
  *     description: Retrieve logs for a specific GoogleMapReview.
  *     tags: [GoogleMapReviews]
  *     requestBody:
