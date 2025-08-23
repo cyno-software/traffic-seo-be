@@ -98,7 +98,7 @@ const router = express.Router();
  *                       type: integer
  *                       example: 1
  */
-router.post("/search", authorization(["search-googleMapReviews"]), getGoogleMapReviewList);
+router.post("/search", getGoogleMapReviewList);
 
 /**
  * @swagger
@@ -171,7 +171,7 @@ router.post("/search", authorization(["search-googleMapReviews"]), getGoogleMapR
  *                         type: integer
  *                         example: 5
  */
-router.post("/getByCampaign", authorization(["read-googleMapReview"]), getGoogleMapReviewsByCampaignId);
+router.post("/getByCampaign", getGoogleMapReviewsByCampaignId);
 
 /**
  * @swagger
@@ -277,7 +277,7 @@ router.post("/getByCampaign", authorization(["read-googleMapReview"]), getGoogle
  *                       type: integer
  *                       example: 5
  */
-router.post("/", authorization(["create-googleMapReview"]), createGoogleMapReview);
+router.post("/", createGoogleMapReview);
 
 /**
  * @swagger
@@ -340,7 +340,7 @@ router.post("/", authorization(["create-googleMapReview"]), createGoogleMapRevie
  *                       type: integer
  *                       example: 5
  */
-router.get("/:id", authorization(["read-googleMapReview"]), getGoogleMapReviewById);
+router.get("/:id", getGoogleMapReviewById);
 
 /**
  * @swagger
@@ -439,6 +439,6 @@ router.get("/:id", authorization(["read-googleMapReview"]), getGoogleMapReviewBy
  *                       type: integer
  *                       example: 4
  */
-router.patch("/:id", authorization(["update-googleMapReview"]), updateGoogleMapReview);
+router.patch("/:id", updateGoogleMapReview);
 
 export default router;
