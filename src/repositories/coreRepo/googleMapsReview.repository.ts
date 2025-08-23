@@ -4,6 +4,9 @@ import { Op } from "sequelize";
 import { ErrorType } from "../../types/Error.type";
 import { GoogleMapReviewAttributes } from "../../interfaces/GoogleMapReview.interface";
 import statusCode from "../../constants/statusCode";
+import { baseApiPython } from "../../config/botAPI.config";
+import { logger } from "../../config/logger.config";
+
 
 export const getGoogleMapReviewListRepo = async (filters: {
   campaignId?: number;
@@ -134,7 +137,36 @@ export const getGoogleMapReviewByCampaignIdRepo = async (
       include: [{ model: Campaign, as: 'campaigns' }]
     });
 
-    return googleMapReviews.length > 0 ? googleMapReviews : null;
+    if (googleMapReviews.length === 0) {
+      return null;
+    }
+
+    // Call Python API for each review to get images and attach them
+    const reviewsWithImages = await Promise.all(
+      googleMapReviews.map(async (googleMapReview) => {
+        try {
+          // Call the image API for this specific review ID
+          const imageData = await baseApiPython(`image/${googleMapReview.id}`, {});
+          
+          // Attach the image data to the review
+          return {
+            ...googleMapReview.toJSON(),
+            images: imageData
+          };
+        } catch (error: any) {
+          // If image API fails, return review without images
+          logger.error(
+            `Failed to get images for Google Maps review ${googleMapReview.id}: ${error.message}`
+          );
+          return {
+            ...googleMapReview.toJSON(),
+            images: null
+          };
+        }
+      })
+    );
+
+    return reviewsWithImages;
   } catch (error: any) {
     throw new ErrorType(error.name, error.message, error.code);
   }

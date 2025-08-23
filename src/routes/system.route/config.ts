@@ -49,5 +49,5 @@ export const protectedRoutes = {
   "/packages": packageRoute,
   "/report-user": reportUserRoute,
   "/direct-link": directLinkRoute,
-  "google-maps-review": googleMapsReviewRoute
+  "/google-maps-review": googleMapsReviewRoute
 };
