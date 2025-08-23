@@ -544,7 +544,6 @@ router.patch("/:id", updateGoogleMapReview);
  * @swagger
  * /google-maps-review/search-log:
  *   post:
- *     description: Retrieve logs for a specific GoogleMapReview.
  *     tags: [GoogleMapReviews]
  *     requestBody:
  *       required: true
@@ -559,7 +558,6 @@ router.patch("/:id", updateGoogleMapReview);
  *                 example: 1
  *     responses:
  *       200:
- *         description: Logs retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -597,7 +595,6 @@ router.patch("/:id", updateGoogleMapReview);
  *                         type: string
  *     responses:
  *       200:
- *         description: Logs retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -624,7 +621,6 @@ router.patch("/:id", updateGoogleMapReview);
  *                         format: date-time
  *                         example: "2025-01-01T00:00:00"
  *       400:
- *         description: Bad request - Invalid ID format
  *         content:
  *           application/json:
  *             schema:
@@ -659,7 +655,6 @@ router.patch("/:id", updateGoogleMapReview);
  *                 error:
  *                   type: string
  *       500:
- *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
