@@ -1011,7 +1011,7 @@ export const pauseCampaign = async (
         async (keyword: KeywordAttributes) => {
           const dataPython = {
             keywordId: keyword.id,
-            timeEnd: formatDate(new Date()),
+            timeEnd: formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000)),
           };
           return baseApiPythonUpdate("keyword/update", dataPython);
         }
@@ -1092,7 +1092,9 @@ export const getContinueCampaign = async (
         async (keyword: KeywordAttributes) => {
           const dataPython = {
             keywordId: keyword.id,
-            timeEnd: formatDate(campaign.endDate),
+            timeEnd: formatDate(
+              new Date(campaign.endDate.getTime() - 24 * 60 * 60 * 1000)
+            ),
           };
           return baseApiPythonUpdate("keyword/update", dataPython);
         }
@@ -1177,7 +1179,7 @@ export const cancelCampaign = async (
         async (keyword: KeywordAttributes) => {
           const dataPython = {
             keywordId: keyword.id,
-            timeEnd: formatDate(new Date()),
+            timeEnd: formatDate(new Date(Date.now() - 24 * 60 * 60 * 1000)),
           };
           return baseApiPythonUpdate("keyword/update", dataPython);
         }
